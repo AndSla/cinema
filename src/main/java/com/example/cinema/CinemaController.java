@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class CinemaController {
@@ -39,24 +41,26 @@ public class CinemaController {
     }
 
     @PostMapping("/purchase")
-    public Seat purchase(@RequestBody Seat wantedSeat) {
+    public ResponseEntity<?> purchase(@RequestBody Seat wantedSeat) {
 
         if (cinemaSeats.getAvailableSeats().contains(wantedSeat)) {
             int index = cinemaSeats.getAvailableSeats().indexOf(wantedSeat);
             Seat seat = cinemaSeats.getAvailableSeats().get(index);
 
             if (seat.isPurchased()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "The ticket has been already purchased!");
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "The ticket has been already purchased!");
+                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
             } else {
                 seat.setPurchased(true);
                 cinemaSeats.getAvailableSeats().set(index, seat);
-                return seat;
+                return new ResponseEntity<>(seat, HttpStatus.OK);
             }
 
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "The number of a row or a column is out of bounds!");
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "The number of a row or a column is out of bounds!");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
     }
 
