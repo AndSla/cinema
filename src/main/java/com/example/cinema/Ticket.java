@@ -2,10 +2,11 @@ package com.example.cinema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Ticket {
-    private UUID token = UUID.randomUUID();
+    private UUID token;
     private Seat seat;
 
     public Ticket() {
@@ -31,4 +32,20 @@ public class Ticket {
     public void setSeat(Seat seat) {
         this.seat = seat;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ticket ticket = (Ticket) o;
+
+        return Objects.equals(token, ticket.token);
+    }
+
+    @Override
+    public int hashCode() {
+        return token != null ? token.hashCode() : 0;
+    }
+
 }
