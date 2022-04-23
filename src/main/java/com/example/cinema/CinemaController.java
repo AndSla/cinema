@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 public class CinemaController {
 
@@ -22,21 +24,28 @@ public class CinemaController {
     @PostMapping("/purchase")
     public ResponseEntity<?> purchase(@RequestBody Seat wantedSeat) {
 
-        if (cinema.getSeats().contains(wantedSeat)) {
-            int index = cinema.getSeats().indexOf(wantedSeat);
-            Seat seat = cinema.getSeats().get(index);
+        for (Ticket ticket : cinema.getTickets()) {
 
-            if (seat.isPurchased()) {
-                return new ResponseEntity<>(new TicketPurchasedException(), HttpStatus.BAD_REQUEST);
-            } else {
-                seat.setPurchased(true);
-                cinema.getSeats().set(index, seat);
-                return new ResponseEntity<>(seat, HttpStatus.OK);
+            Seat seat = ticket.getSeat();
+
+            if (Objects.equals(seat, wantedSeat)) {
+                int index = cinema.getTickets().indexOf(ticket);
+
+                if (seat.isPurchased()) {
+                    return new ResponseEntity<>(new TicketPurchasedException(), HttpStatus.BAD_REQUEST);
+                } else {
+                    seat.setPurchased(true);
+                    ticket.setSeat(seat);
+                    cinema.getTickets().set(index, ticket);
+                    return new ResponseEntity<>(ticket, HttpStatus.OK);
+                }
+
             }
 
-        } else {
-            return new ResponseEntity<>(new SeatOutOfBoundsException(), HttpStatus.BAD_REQUEST);
         }
+
+        return new ResponseEntity<>(new SeatOutOfBoundsException(), HttpStatus.BAD_REQUEST);
+
     }
 
 }

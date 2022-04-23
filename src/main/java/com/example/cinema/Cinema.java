@@ -1,5 +1,6 @@
 package com.example.cinema;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ public class Cinema {
 
     private int totalRows = 9;
     private int totalColumns = 9;
+    private List<Ticket> tickets = new ArrayList<>();
     private List<Seat> seats = new ArrayList<>();
 
     {
@@ -19,7 +21,7 @@ public class Cinema {
                 int regularPrice = 8;
                 int price = i <= maxPremiumRowNo ? premiumPrice : regularPrice;
                 Seat seat = new Seat(i, j, price);
-                seats.add(seat);
+                tickets.add(new Ticket(seat));
             }
         }
     }
@@ -47,6 +49,7 @@ public class Cinema {
 
     @JsonProperty("available_seats")
     public List<Seat> getSeats() {
+        tickets.forEach(e -> seats.add(e.getSeat()));
         return seats;
     }
 
@@ -54,4 +57,12 @@ public class Cinema {
         this.seats = seats;
     }
 
+    @JsonIgnore
+    public List<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
+    }
 }
