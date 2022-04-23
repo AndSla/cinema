@@ -1,5 +1,7 @@
 package com.example.cinema;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ReturnedTicket {
 
     private Seat returnedTicket;
@@ -8,6 +10,7 @@ public class ReturnedTicket {
         this.returnedTicket = returnedTicket;
     }
 
+    @JsonProperty("returned_ticket")
     public Seat getReturnedTicket() {
         return returnedTicket;
     }

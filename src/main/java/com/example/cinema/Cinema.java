@@ -22,6 +22,7 @@ public class Cinema {
                 int price = i <= maxPremiumRowNo ? premiumPrice : regularPrice;
                 Seat seat = new Seat(i, j, price);
                 tickets.add(new Ticket(seat));
+                seats.add(seat);
             }
         }
     }
@@ -49,7 +50,6 @@ public class Cinema {
 
     @JsonProperty("available_seats")
     public List<Seat> getSeats() {
-        tickets.forEach(e -> seats.add(e.getSeat()));
         return seats;
     }
 
