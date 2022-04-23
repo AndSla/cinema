@@ -2,13 +2,11 @@ package com.example.cinema;
 
 import com.example.cinema.exception.SeatOutOfBoundsException;
 import com.example.cinema.exception.TicketPurchasedException;
+import com.example.cinema.exception.WrongPasswordException;
 import com.example.cinema.exception.WrongTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -57,11 +55,39 @@ public class CinemaController {
             int index = cinema.getTickets().indexOf(ticketToReturn);
             Ticket ticket = cinema.getTickets().get(index);
             ticket.setToken(null);
+            ticket.getSeat().setPurchased(false);
             cinema.getTickets().set(index, ticket);
             ReturnedTicket returnedTicket = new ReturnedTicket(ticket.getSeat());
             return new ResponseEntity<>(returnedTicket, HttpStatus.OK);
         }
         return new ResponseEntity<>(new WrongTokenException(), HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/stats")
+    public ResponseEntity<?> getStats(@RequestParam(defaultValue = "") String password) {
+        String expectedPassword = "super_secret";
+        int currentIncome = 0;
+        int numberOfAvailableSeats = cinema.getSeats().size();
+        int numberOfPurchasedTickets = 0;
+
+        if (expectedPassword.equals(password)) {
+
+            for (Seat seat : cinema.getSeats()) {
+                if (seat.isPurchased()) {
+                    currentIncome += seat.getPrice();
+                    numberOfAvailableSeats -= 1;
+                    numberOfPurchasedTickets += 1;
+                }
+            }
+
+            Stats stats = new Stats(currentIncome, numberOfAvailableSeats, numberOfPurchasedTickets);
+
+            return new ResponseEntity<>(stats, HttpStatus.OK);
+
+        }
+
+        return new ResponseEntity<>(new WrongPasswordException(), HttpStatus.UNAUTHORIZED);
+
     }
 
 }
